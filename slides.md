@@ -1723,6 +1723,48 @@ transition: slide-left
 layout: center
 ---
 
+# Data validation: How to retrieve other associated resource
+
+````md magic-move
+```js
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // using get() to retrieve user data
+    function isAssignedAdminUser(userRef) {
+      return get(/$(userRef)).data.role == 'admin';
+    }
+
+    match /cities/{cityId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /profiles/{profileId} {
+      // profile document has userRef reference to user document
+      allow read, write: if isAssignedAdminUser(resource.data.userRef);
+    }
+  }
+}
+```
+````
+
+<style>
+  .slidev-layout .slidev-code-wrapper {
+    max-width: 100%;
+  }
+  .slidev-layout p, .slidev-layout li {
+    font-size: 1.1em
+  }
+</style>
+
+---
+transition: slide-left
+layout: center
+---
+
 # Testing with Firestore Emulator
 
 <v-clicks>
